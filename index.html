@@ -1,0 +1,401 @@
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GlassyAI New Tab</title>
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>  <!-- SVG Filter for 3D Smooth Water Effect -->
+  <svg style="display: none;">
+    <filter id="water-filter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.005 0.005" numOctaves="2" result="noise">
+        <animate attributeName="baseFrequency" values="0.005 0.005; 0.008 0.008; 0.005 0.005" dur="15s" repeatCount="indefinite" />
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="40" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+
+  <!-- Background Layers -->
+  <div class="background" id="bg-layer" data-theme="theme-live-rgb">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div id="custom-bg-layer"></div>
+  <div id="weather-bg-layer"></div>
+
+  <!-- Left Navigation (Sidebars) -->
+  <div class="left-nav">
+    <button class="icon-btn glass" id="notes-btn" title="Quick Notes Scratchpad">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+    </button>
+    <button class="icon-btn glass" id="todo-btn" title="Tasks">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+    </button>
+    <button class="icon-btn glass" id="dev-tools-btn" title="Developer Tools">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+    </button>
+    <button class="icon-btn glass" id="ai-history-btn" title="Native AI Chat History">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+    </button>
+    <button class="icon-btn glass" id="browser-history-btn" title="Recent Tabs & History">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+    </button>
+  </div>
+
+  <div class="top-right-nav">
+    <div id="weather-widget" class="weather-widget glass" style="display: none;">
+      <span id="weather-icon">☀️</span>
+      <span id="weather-temp">--°C</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="container">
+    <div class="clock-widget">
+      <!-- Digital Clock (Default) -->
+      <div id="clock-digital">
+        <h1 id="time">00:00</h1>
+        <p id="date">Day, Month DD</p>
+        <p id="greeting">Good Morning</p>
+      </div>
+      <!-- Analog Clock -->
+      <div id="clock-analog" style="display: none;">
+        <div class="analog-face">
+          <div class="hand hour-hand"></div>
+          <div class="hand minute-hand"></div>
+          <div class="hand second-hand"></div>
+          <div class="center-dot"></div>
+        </div>
+      </div>
+      <!-- Flip Clock -->
+      <div id="clock-flip" style="display: none;">
+        <div class="flip-unit" id="flip-hour">00</div><span class="flip-colon">:</span><div class="flip-unit" id="flip-minute">00</div>
+      </div>
+    </div>
+
+    <div class="search-container">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google" class="google-logo" style="filter: drop-shadow(0px 2px 5px rgba(0,0,0,0.5)) brightness(0) invert(1);">
+      <form class="search-bar glass" id="search-form">
+        <div class="ai-selector" id="ai-selector" title="Select AI Model">
+          <img id="current-ai-icon" src="" alt="AI" width="18" height="18">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          
+          <div class="ai-dropdown glass" id="ai-dropdown">
+            <div class="ai-option" data-ai="google">
+              <img src="https://www.google.com/s2/favicons?domain=google.com&sz=64" width="16" height="16"> Google Search
+            </div>
+            <div class="ai-option" data-ai="chatgpt">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10a37f" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg> ChatGPT
+            </div>
+            <div class="ai-option" data-ai="gemini">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4285f4" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Gemini
+            </div>
+            <div class="ai-option" data-ai="claude">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97757" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> Claude
+            </div>
+            <div class="ai-option" data-ai="anthropic">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> Perplexity
+            </div>
+          </div>
+        </div>
+        <input type="text" id="search-input" placeholder="Search or ask AI..." autocomplete="off">
+        <button type="button" id="mic-btn" class="mic-btn" title="Voice Search">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+        </button>
+      </form>
+    </div>
+
+    <div class="shortcuts" id="shortcuts-container">
+      <!-- Shortcuts will be dynamically injected here -->
+    </div>
+  </main>
+
+  <!-- AI Native Chat Overlay -->
+  <div class="ai-chat-overlay glass" id="ai-chat-overlay">
+    <div class="ai-chat-header">
+      <h3 id="ai-chat-title">AI Assistant</h3>
+      <button class="close-btn" id="close-ai-chat">×</button>
+    </div>
+    <div class="ai-chat-body" id="ai-chat-body"></div>
+    <div class="ai-chat-footer">
+      <form id="ai-chat-form">
+        <input type="text" id="ai-chat-input" placeholder="Ask a follow-up question..." autocomplete="off">
+        <button type="submit">→</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bottom Right Widgets (Pomodoro & Sounds) -->
+  <div class="bottom-right-nav">
+    <div id="pomodoro-widget" class="glass widget">
+      <div class="pomodoro-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        <span>Focus</span>
+      </div>
+      <div id="pomodoro-time">25:00</div>
+      <div class="pomodoro-controls">
+        <button id="pomodoro-start">Start</button>
+        <button id="pomodoro-reset">Reset</button>
+      </div>
+    </div>
+    
+    <div id="sounds-widget" class="glass widget">
+      <div class="sounds-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+        <span>Zen Sounds</span>
+      </div>
+      <div class="sounds-controls">
+        <button class="sound-btn" data-sound="rain" title="Rain">🌧️</button>
+        <button class="sound-btn" data-sound="fire" title="Fireplace">🔥</button>
+        <button class="sound-btn" data-sound="coffee" title="Coffee Shop">☕</button>
+      </div>
+      <input type="range" id="sound-volume" min="0" max="100" value="50">
+    </div>
+  </div>
+
+  <!-- Settings Button -->
+  <button class="settings-btn glass" id="settings-btn" title="Settings">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+  </button>
+
+  <!-- About Button -->
+  <button class="about-btn glass" id="about-btn" title="About the Developer">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+  </button>
+
+  <!-- Settings Sidebar -->
+  <div class="settings-sidebar glass" id="settings-sidebar">
+    <div class="sidebar-header">
+      <h2>Customize</h2>
+      <button id="close-settings" class="close-btn">×</button>
+    </div>
+    
+    <div class="settings-content">
+      <div class="settings-section">
+        <h3>Theme Colors <span class="info-icon" title="Change the animated background gradient of your dashboard.">i</span></h3>
+        <div class="color-grid" id="color-options">
+          <div class="color-swatch" data-theme="theme-live-rgb" style="background: linear-gradient(120deg, #ff0055, #0044ff, #00ffaa, #ffcc00, #ff0055);"></div>
+          <div class="color-swatch" data-theme="theme-purple" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);"></div>
+          <div class="color-swatch" data-theme="theme-blue" style="background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);"></div>
+          <div class="color-swatch" data-theme="theme-dark" style="background: linear-gradient(135deg, #434343 0%, #000000 100%);"></div>
+          <div class="color-swatch" data-theme="theme-sunset" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
+          <div class="color-swatch" data-theme="theme-emerald" style="background: linear-gradient(135deg, #0ba360 0%, #3cba92 100%);"></div>
+          <div class="color-swatch" data-theme="theme-aurora" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);"></div>
+          <div class="color-swatch" data-theme="theme-ocean" style="background: linear-gradient(to top, #09203f 0%, #537895 100%);"></div>
+          <div class="color-swatch" data-theme="theme-peach" style="background: linear-gradient(to right, #ffecd2 0%, #fcb69f 100%);"></div>
+          <div class="color-swatch" data-theme="theme-midnight" style="background: linear-gradient(to right, #141e30, #243b55);"></div>
+          <div class="color-swatch" data-theme="theme-cyberpunk" style="background: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);"></div>
+          <div class="color-swatch" data-theme="theme-synthwave" style="background: linear-gradient(to top, #ff9a44 0%, #fc6076 100%);"></div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>Custom Background Media <span class="info-icon" title="Upload your own .jpg image or looping .mp4 video. It is saved locally in your browser.">i</span></h3>
+        <input type="file" id="custom-bg-upload" accept="image/*,video/*" style="display:none;">
+        <button id="upload-bg-btn" class="action-btn">Upload Image / Video</button>
+        <button id="clear-bg-btn" class="action-btn-secondary" style="display:none; margin-top:5px;">Clear Custom Background</button>
+        
+        <h4 style="margin-top:10px; font-size:0.8rem;">Media Transparency</h4>
+        <input type="range" id="custom-bg-opacity" min="0" max="100" value="100">
+      </div>
+
+      <div class="settings-section">
+        <h3>Clock Style <span class="info-icon" title="Change the main dashboard clock's appearance.">i</span></h3>
+        <select id="clock-style-select" class="custom-select">
+          <option value="digital">Digital (Modern)</option>
+          <option value="analog">Analog</option>
+          <option value="flip">Retro Flip</option>
+        </select>
+      </div>
+
+      <div class="settings-section">
+        <h3>Weather Features <span class="info-icon" title="Fetches live weather based on your location. Weather animations will overlay rain or snow automatically based on outside conditions.">i</span></h3>
+        <label style="display:flex; align-items:center; gap:10px; font-size:0.9rem;">
+          <input type="checkbox" id="toggle-weather"> Enable Live Weather
+        </label>
+        <label style="display:flex; align-items:center; gap:10px; font-size:0.9rem; margin-top:5px;">
+          <input type="checkbox" id="toggle-weather-bg"> Enable Weather Animations
+        </label>
+      </div>
+
+      <div class="settings-section">
+        <h3>Native AI API Keys <span class="info-icon" title="Paste your own API keys here. The search bar will use them to chat with AI natively via a popup modal instead of redirecting you to a new website. Your keys are stored locally on your device.">i</span></h3>
+        <p style="font-size:0.75rem; color:rgba(255,255,255,0.7); margin-bottom:10px;">Enter your API keys to get AI responses directly inside this tab. Without a key, searches will redirect to the AI's website.</p>
+        <input type="password" id="openai-key" class="api-input" placeholder="OpenAI API Key (sk-...)">
+        <input type="password" id="gemini-key" class="api-input" placeholder="Gemini API Key (AIza...)">
+        <input type="password" id="anthropic-key" class="api-input" placeholder="Anthropic API Key (sk-ant-...)">
+        <button id="save-keys-btn" class="action-btn" style="margin-top:5px;">Save Keys</button>
+      </div>
+      
+      <div class="settings-section">
+        <h3>Glass Opacity <span class="info-icon" title="Adjust the brightness of the glass panels.">i</span></h3>
+        <input type="range" id="glass-opacity" min="0" max="100" value="20">
+      </div>
+      
+      <div class="settings-section">
+        <h3>Blur Intensity <span class="info-icon" title="Adjust the blur radius behind the glass panels.">i</span></h3>
+        <input type="range" id="glass-blur" min="0" max="40" value="16">
+      </div>
+    </div>
+  </div>
+
+  <!-- To-Do Sidebar -->
+  <div class="side-panel glass" id="todo-sidebar">
+    <div class="sidebar-header">
+      <h2>Tasks</h2>
+      <button id="close-todo" class="close-btn">×</button>
+    </div>
+    <div class="todo-content">
+      <form id="todo-form">
+        <input type="text" id="todo-input" placeholder="Add a new task..." autocomplete="off">
+        <button type="submit" class="add-todo-btn">+</button>
+      </form>
+      <ul id="todo-list"></ul>
+    </div>
+  </div>
+
+  <!-- AI Context History Sidebar -->
+  <div class="side-panel glass" id="ai-history-sidebar">
+    <div class="sidebar-header">
+      <h2>AI Context Store</h2>
+      <button id="close-ai-history" class="close-btn">×</button>
+    </div>
+    <div class="sidebar-content">
+      <p style="font-size:0.8rem; color:rgba(255,255,255,0.7); margin-bottom:10px;">Your past native AI conversations are saved here.</p>
+      <div id="ai-history-list"></div>
+      <button id="clear-history-btn" class="action-btn-secondary" style="margin-top:10px;">Clear History</button>
+    </div>
+  </div>
+
+  <!-- Developer Tools Sidebar -->
+  <div class="side-panel glass" id="dev-tools-sidebar">
+    <div class="sidebar-header">
+      <h2>Developer Tools</h2>
+      <button id="close-dev-tools" class="close-btn">×</button>
+    </div>
+    <div class="sidebar-content">
+      <div class="dev-tool">
+        <h3>JSON Formatter</h3>
+        <textarea id="json-input" placeholder="Paste JSON here..."></textarea>
+        <button id="format-json-btn" class="action-btn">Format JSON</button>
+        <pre id="json-output"></pre>
+      </div>
+      <hr style="border-color:rgba(255,255,255,0.1); margin:15px 0;">
+      <div class="dev-tool">
+        <h3>Base64 Encode/Decode</h3>
+        <textarea id="base64-input" placeholder="Paste text or base64..."></textarea>
+        <div style="display:flex; gap:10px; margin-top:5px;">
+          <button id="encode-btn" class="action-btn">Encode</button>
+          <button id="decode-btn" class="action-btn">Decode</button>
+        </div>
+        <textarea id="base64-output" readonly></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Browser History Sidebar -->
+  <div class="side-panel glass" id="browser-history-sidebar">
+    <div class="sidebar-header">
+      <h2>Recent Tabs & History</h2>
+      <button id="close-browser-history" class="close-btn">×</button>
+    </div>
+    <div class="sidebar-content" id="browser-history-list" style="overflow-y:auto;">
+      <!-- Populated by script.js -->
+    </div>
+  </div>
+
+  <!-- Quick Notes Sidebar -->
+  <div class="side-panel glass" id="notes-sidebar">
+    <div class="sidebar-header">
+      <h2>Quick Notes</h2>
+      <button id="close-notes" class="close-btn">×</button>
+    </div>
+    <div class="sidebar-content" style="overflow: hidden; display: flex; flex-direction: column;">
+      <p style="font-size:0.8rem; color:rgba(255,255,255,0.7); margin-bottom:10px;">Your scratchpad. Autosaves as you type.</p>
+      <textarea id="quick-notes-input" placeholder="Type here..." style="flex: 1; width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; padding: 10px; font-family: inherit; font-size: 0.9rem; resize: none; outline: none;"></textarea>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <!-- Add Shortcut Modal -->
+  <div class="modal-overlay" id="shortcut-modal">
+    <div class="modal glass">
+      <h2>Add New Shortcut</h2>
+      <form id="shortcut-form">
+        <input type="text" id="shortcut-name" placeholder="Website Name (e.g. YouTube)" required>
+        <input type="url" id="shortcut-url" placeholder="URL (e.g. https://youtube.com)" required>
+        <div class="modal-actions">
+          <button type="button" class="action-btn-secondary" id="cancel-shortcut">Cancel</button>
+          <button type="submit" class="action-btn">Save Shortcut</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- About / Dev Info Modal -->
+  <div class="modal-overlay" id="about-modal">
+    <div class="modal glass">
+      <h2>About GlassyAI</h2>
+      <p style="text-align: center; margin-bottom: 15px; color: rgba(255,255,255,0.7);">Developed by Tirth Sonigara</p>
+      <div style="font-size: 0.9rem; color: rgba(255,255,255,0.8); line-height: 1.5; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
+        <h4>Extension Features</h4>
+        <ul style="margin-left: 20px; margin-top: 10px;">
+          <li>Fully Professional AI-powered Dashboard</li>
+          <li>Native in-browser AI Chat using custom API Keys</li>
+          <li>AI Context Store with copy functionality</li>
+          <li>Custom Video & Image Backgrounds with transparency control</li>
+          <li>Dynamic Live Weather widget & background animations</li>
+          <li>Interactive Custom Shortcut Manager</li>
+          <li>Multiple Clock Designs (Digital, Analog, Retro Flip)</li>
+          <li>Developer Tools (JSON Formatter, Base64 Converter)</li>
+          <li>Beautiful Apple-like Glassmorphic UI</li>
+        </ul>
+      </div>
+      <button class="action-btn" id="close-about-btn" style="margin-top:20px; width:100%;">Awesome!</button>
+    </div>
+  </div>
+
+  <!-- External Library for Markdown Parsing (AI Chat) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Onboarding Guide Modal -->
+  <div class="modal-overlay" id="onboarding-modal" style="z-index: 10000; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);">
+    <div class="modal glass" style="max-width: 600px; padding: 3rem; text-align: center; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 50px rgba(255,255,255,0.1);">
+      <div id="onboarding-step-1">
+        <h1 style="font-size: 2.5rem; font-weight: 300; margin-bottom: 10px;">Welcome to GlassyAI</h1>
+        <p style="font-size: 1.1rem; color: rgba(255,255,255,0.8); margin-bottom: 30px;">The ultimate foolproof, AI-powered productivity dashboard.</p>
+        <button class="action-btn" id="ob-next-1" style="font-size: 1.1rem; padding: 12px 24px;">Get Started →</button>
+      </div>
+
+      <div id="onboarding-step-2" style="display: none;">
+        <h2 style="font-size: 1.8rem; font-weight: 300; margin-bottom: 15px;">1. Settings & Customization</h2>
+        <p style="font-size: 1rem; color: rgba(255,255,255,0.8); margin-bottom: 20px;">Click the <strong>Gear Icon</strong> in the bottom left to change Themes, upload Custom Video Backgrounds, toggle Live Weather animations, and select your Clock style.</p>
+        <button class="action-btn" id="ob-next-2">Next Step →</button>
+      </div>
+
+      <div id="onboarding-step-3" style="display: none;">
+        <h2 style="font-size: 1.8rem; font-weight: 300; margin-bottom: 15px;">2. Native AI Chat</h2>
+        <p style="font-size: 1rem; color: rgba(255,255,255,0.8); margin-bottom: 20px;">GlassyAI has a built-in AI engine with memory context! Paste your API keys in the Settings menu, select your AI from the search bar dropdown, and type. It works perfectly without ever leaving the tab.</p>
+        <button class="action-btn" id="ob-next-3">Next Step →</button>
+      </div>
+
+      <div id="onboarding-step-4" style="display: none;">
+        <h2 style="font-size: 1.8rem; font-weight: 300; margin-bottom: 15px;">3. Tools & Productivity</h2>
+        <p style="font-size: 1rem; color: rgba(255,255,255,0.8); margin-bottom: 20px;">Use the left sidebar for Quick Notes, Tasks, and Dev Tools. Use the bottom right widgets for a Pomodoro Timer and Ambient Zen Sounds.</p>
+        <button class="action-btn" id="ob-finish" style="background: white; color: black; font-weight: bold;">Finish Setup!</button>
+      </div>
+      
+      <div class="onboarding-dots" style="margin-top: 30px; display: flex; justify-content: center; gap: 10px;">
+        <div class="dot active" id="dot-1" style="width: 10px; height: 10px; border-radius: 50%; background: white;"></div>
+        <div class="dot" id="dot-2" style="width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.3);"></div>
+        <div class="dot" id="dot-3" style="width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.3);"></div>
+        <div class="dot" id="dot-4" style="width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.3);"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
